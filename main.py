@@ -3,6 +3,7 @@ from typing import Optional
 from fastapi import FastAPI
 import requests
 from bs4 import BeautifulSoup
+from datetime import datetime
 
 app = FastAPI()
 
@@ -57,13 +58,15 @@ def resource_add():
 
 
 @app.post("/is_cn_work_day")
-async def is_cn_work_day(date) -> bool:
+async def is_cn_work_day(date):
     """
     判断时间是否是中国的工作日
     :param date: 2024-01-21
     :return: bool
     """
-    holidays = [
+    try:
+        datetime.strptime(date_string, date_format)
+        holidays = [
         "2024-01-01",
         "2024-02-10",
         "2024-02-11",
@@ -94,19 +97,24 @@ async def is_cn_work_day(date) -> bool:
         "2024-10-07",
     ]
 
-    work_overtime_black = [
-        "2024-02-04",
-        "2024-02-18",
-        "2024-02-04",
-        "2024-02-04",
-        "2024-04-07",
-        "2024-04-28",
-        "2024-05-11",
-        "2024-09-14",
-        "2024-09-29",
-        "2024-10-12",
-    ]
-    return date in holidays or date in work_overtime_black
+        work_overtime_black = [
+            "2024-02-04",
+            "2024-02-18",
+            "2024-02-04",
+            "2024-02-04",
+            "2024-04-07",
+            "2024-04-28",
+            "2024-05-11",
+            "2024-09-14",
+            "2024-09-29",
+            "2024-10-12",
+        ]
+        is_cn_work_day = date in holidays or date in work_overtime_black
+        return {"is_cn_work_day": is_cn_work_day, "msg": ""}
+    except ValueError:
+        return {"is_cn_work_day": False, "msg": "日期格式不正确"}
+
+    
 
 
 
